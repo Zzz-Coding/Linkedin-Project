@@ -14,6 +14,7 @@ import LocationOnIcon from '@material-ui/icons/LocationOn';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import HistoryIcon from '@material-ui/icons/History';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import MoreIcon from '@material-ui/icons/MoreVert';
 
 const useStyles = makeStyles(theme => ({
@@ -83,37 +84,15 @@ const Navbar = (props) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
-    const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
     function handleMobileMenuClose() {
         setMobileMoreAnchorEl(null);
     }
 
-    function handleMenuClose() {
-        setAnchorEl(null);
-        handleMobileMenuClose();
-    }
-
     function handleMobileMenuOpen(event) {
         setMobileMoreAnchorEl(event.currentTarget);
     }
-
-    const menuId = 'primary-search-account-menu';
-    const renderMenu = (
-        <Menu
-            anchorEl={anchorEl}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            id={menuId}
-            keepMounted
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={isMenuOpen}
-            onClose={handleMenuClose}
-        >
-            <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-            <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-        </Menu>
-    );
 
     const mobileMenuId = 'primary-search-account-menu-mobile';
     const renderMobileMenu = (
@@ -146,9 +125,15 @@ const Navbar = (props) => {
             </MenuItem>
             <MenuItem>
                 <IconButton color="inherit">
+                    <ThumbUpIcon />
+                </IconButton>
+                <p>Recommendation</p>
+            </MenuItem>
+            <MenuItem>
+                <IconButton color="inherit">
                     <AccountCircle />
                 </IconButton>
-                <p>Profile</p>
+                <p>Logout</p>
             </MenuItem>
         </Menu>
     );
@@ -181,6 +166,9 @@ const Navbar = (props) => {
                 </IconButton>
                 <IconButton color="inherit">
                     <HistoryIcon />
+                </IconButton>
+                <IconButton color="inherit">
+                    <ThumbUpIcon />
                 </IconButton>
                 <IconButton color="inherit">
                     <AccountCircle />
@@ -233,7 +221,6 @@ const Navbar = (props) => {
                 {toolBar}
             </AppBar>
             {renderMobileMenu}
-            {renderMenu}
         </div>
     );
 }
