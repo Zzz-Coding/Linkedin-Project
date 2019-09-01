@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -12,10 +11,12 @@ import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import HistoryIcon from '@material-ui/icons/History';
+import BookmarkIcon from '@material-ui/icons/Bookmark';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import MoreIcon from '@material-ui/icons/MoreVert';
+
+import NavLinkItem from '../NavLinkItem/NavLinkItem';
 
 const useStyles = makeStyles(theme => ({
     grow: {
@@ -81,7 +82,6 @@ const useStyles = makeStyles(theme => ({
 
 const Navbar = (props) => {
     const classes = useStyles();
-    const [anchorEl, setAnchorEl] = useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -105,34 +105,44 @@ const Navbar = (props) => {
             open={isMobileMenuOpen}
             onClose={handleMobileMenuClose}
         >
-            <MenuItem onClick={() => console.log('111')}>
-                <IconButton color="inherit" >
-                    <LocationOnIcon />
-                </IconButton>
+            <MenuItem>
+                <NavLinkItem link="/" exact>
+                    <IconButton>
+                        <LocationOnIcon />
+                    </IconButton>
+                </NavLinkItem>
                 <p>Nearby</p>
             </MenuItem>
             <MenuItem>
-                <IconButton color="inherit">
-                    <FavoriteIcon />
-                </IconButton>
+                <NavLinkItem link="/favorite">
+                    <IconButton>
+                        <FavoriteIcon />
+                    </IconButton>
+                </NavLinkItem>
                 <p>Favorite</p>
             </MenuItem>
             <MenuItem>
-                <IconButton color="inherit">
-                    <HistoryIcon />
-                </IconButton>
+                <NavLinkItem link="/history">
+                    <IconButton>
+                        <BookmarkIcon />
+                    </IconButton>
+                </NavLinkItem>
                 <p>History</p>
             </MenuItem>
             <MenuItem>
-                <IconButton color="inherit">
-                    <ThumbUpIcon />
-                </IconButton>
+                <NavLinkItem link="/recommend">
+                    <IconButton>
+                        <ThumbUpIcon />
+                    </IconButton>
+                </NavLinkItem>
                 <p>Recommendation</p>
             </MenuItem>
             <MenuItem>
-                <IconButton color="inherit">
-                    <AccountCircle />
-                </IconButton>
+                <NavLinkItem link="/logout">
+                    <IconButton>
+                        <AccountCircle />
+                    </IconButton>
+                </NavLinkItem>
                 <p>Logout</p>
             </MenuItem>
         </Menu>
@@ -158,21 +168,31 @@ const Navbar = (props) => {
             </div>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
-                <IconButton color="inherit" onClick={() => console.log('111')}>
-                    <LocationOnIcon />
-                </IconButton>
-                <IconButton color="inherit">
-                    <FavoriteIcon />
-                </IconButton>
-                <IconButton color="inherit">
-                    <HistoryIcon />
-                </IconButton>
-                <IconButton color="inherit">
-                    <ThumbUpIcon />
-                </IconButton>
-                <IconButton color="inherit">
-                    <AccountCircle />
-                </IconButton>
+                <NavLinkItem link="/" exact>
+                    <IconButton color="inherit">
+                        <LocationOnIcon />
+                    </IconButton>
+                </NavLinkItem>
+                <NavLinkItem link="/favorite">
+                    <IconButton color="inherit">
+                        <FavoriteIcon />
+                    </IconButton>
+                </NavLinkItem>
+                <NavLinkItem link="/history">
+                    <IconButton color="inherit">
+                        <BookmarkIcon />
+                    </IconButton>
+                </NavLinkItem>
+                <NavLinkItem link="/recommend">
+                    <IconButton color="inherit">
+                        <ThumbUpIcon />
+                    </IconButton>
+                </NavLinkItem>
+                <NavLinkItem link="/logout">
+                    <IconButton color="inherit">
+                        <AccountCircle />
+                    </IconButton>
+                </NavLinkItem>
             </div>
             <div className={classes.sectionMobile}>
                 <IconButton
@@ -208,9 +228,9 @@ const Navbar = (props) => {
                     />
                 </div>
                 <div className={classes.grow} />
-                <NavLink to="/auth" exact>
-                    <PersonAddIcon />
-                </NavLink> 
+                <NavLinkItem link="/auth">
+                    <PersonAddIcon color="inherit"/>
+                </NavLinkItem> 
             </Toolbar>
         );
     }

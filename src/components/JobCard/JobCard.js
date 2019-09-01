@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
@@ -8,7 +9,9 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import CardActions from '@material-ui/core/CardActions';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import HistoryIcon from '@material-ui/icons/History';
+import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
+import BookmarkIcon from '@material-ui/icons/Bookmark';
+import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -34,12 +37,41 @@ const useStyles = makeStyles(theme => ({
 const JobCard = props => {
     const classes = useStyles();
 
+    const cardClickHandler = () => {
+        window.open(props.url);
+    }
+
+    const [state, setState] = useState({
+        favorite: false,
+        applied: false
+    });
+
+    const favoriteToggleHandler = () => {
+        const updatedState = {
+            ...state,
+            favorite: !state.favorite
+        };
+        setState(updatedState);
+    }
+
+    const appliedToggleHandler = () => {
+        const updatedState = {
+            ...state,
+            applied: !state.applied
+        };
+        setState(updatedState);
+    }
+
+    useEffect(() => {
+        console.log('change change');
+    }, [state.favorite])
+
     return (
         <Card className={classes.card}>
-            <CardActionArea>
+            <CardActionArea onClick={cardClickHandler}>
                 <Grid container spacing={1}>
                     <Grid item xs={3}>
-                        <img src={props.companyLogo} alt={props.company} className={classes.img}/>
+                        <img src={props.companyLogo} alt={props.company} className={classes.img} />
                     </Grid>
                     <Grid item xs={9}>
                         <CardContent>
@@ -56,7 +88,7 @@ const JobCard = props => {
                                 {props.location}
                             </Typography>
                             <Typography variant="body2" color="textSecondary" component="p">
-                                {props.description.replace(/<[^>]+>/g,"").substring(0, 200) + '...'}
+                                {props.description.replace(/<[^>]+>/g, "").substring(0, 200) + '...'}
                             </Typography>
                             <Typography variant="body1" color="textSecondary" component="p" className={classes.tune}>
                                 {props.createdAt}
@@ -65,16 +97,22 @@ const JobCard = props => {
                     </Grid>
                 </Grid>
             </CardActionArea>
-            <CardActions className={classes.cardactions}>
-                <IconButton color="inherit">
-                    <FavoriteIcon />
+            {props.isAuthenticated && <CardActions className={classes.cardactions}>
+                <IconButton color="secondary" onClick={favoriteToggleHandler}>
+                    {state.favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                 </IconButton>
-                <IconButton color="inherit">
-                    <HistoryIcon />
+                <IconButton color="primary" onClick={appliedToggleHandler}>
+                    {state.applied ? <BookmarkIcon /> : <BookmarkBorderIcon />}
                 </IconButton>
-            </CardActions>
+            </CardActions>}
         </Card>
     );
 }
 
-export default JobCard;
+const mapStateToProps = state => {
+    return {
+        isAuthenticated: state.auth.token !== null
+    };
+};
+
+export default connect(mapStateToProps)(JobCard);
