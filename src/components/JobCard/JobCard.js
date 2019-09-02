@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -12,6 +12,7 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import BookmarkIcon from '@material-ui/icons/Bookmark';
 import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
+import { database } from '../../firebase/firebase';
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -41,30 +42,70 @@ const JobCard = props => {
         window.open(props.url);
     }
 
-    const [state, setState] = useState({
-        favorite: false,
-        applied: false
-    });
+    const [favorite, setFavorite] = useState(false);
+    const [applied, setApplied] = useState(false);
+    // const [state, setState] = useState({
+    //     favorite: false,
+    //     applied: false
+    // });
+
+    // use this to avoid useEffect be called at first render
+    const didMountRef = useRef(false);
 
     const favoriteToggleHandler = () => {
-        const updatedState = {
-            ...state,
-            favorite: !state.favorite
-        };
-        setState(updatedState);
+        setFavorite(!favorite);
     }
 
     const appliedToggleHandler = () => {
-        const updatedState = {
-            ...state,
-            applied: !state.applied
-        };
-        setState(updatedState);
+        setApplied(!applied);
+    }
+
+    const setInitialState = () => {
+        database.ref('users/' + props.userId + '/favorite/' + props.id).once('value')
+            .then(snapshot => {
+                if (snapshot.val()) {
+                    setFavorite(true);
+                }
+            });
+
+        database.ref('users/' + props.userId + '/history/' + props.id).once('value')
+            .then(snapshot => {
+                if (snapshot.val()) {
+                    setApplied(true);
+                }
+            });
     }
 
     useEffect(() => {
-        console.log('change change');
-    }, [state.favorite])
+        if (didMountRef.current) {
+            console.log('componetDidUpdate');
+            const timer = setTimeout(() => {
+                if (favorite) {
+                    database.ref('users/' + props.userId + '/favorite/' + props.id).set(1);
+                } else {
+                    database.ref('users/' + props.userId + '/favorite/' + props.id).remove();
+                }
+
+                if (applied) {
+                    database.ref('users/' + props.userId + '/history/' + props.id).set(1);
+                } else {
+                    database.ref('users/' + props.userId + '/history/' + props.id).remove();
+                }
+            }, 500);
+            // debounce
+            // in 1s if state.favorite change many times, the function
+            // will only be called once
+            // the return function will be called when useEffect is re-called
+            return () => {
+                clearTimeout(timer);
+            };
+        } else {
+            console.log('componentDidMount');
+            setInitialState();
+            didMountRef.current = true;
+        }
+        
+    }, [favorite, applied]);
 
     return (
         <Card className={classes.card}>
@@ -75,13 +116,13 @@ const JobCard = props => {
                     </Grid>
                     <Grid item xs={9}>
                         <CardContent>
-                            <Typography gutterBottom variant="h4" component="h2">
+                            <Typography gutterBottom variant="h5" component="h2">
                                 {props.title}
                             </Typography>
                             <Typography variant="subtitle2" component="h2" className={classes.jobtype}>
                                 {props.type}
                             </Typography>
-                            <Typography variant="h5" component="h2">
+                            <Typography variant="h6" component="h2">
                                 {props.company}
                             </Typography>
                             <Typography variant="subtitle1" component="h2">
@@ -99,10 +140,10 @@ const JobCard = props => {
             </CardActionArea>
             {props.isAuthenticated && <CardActions className={classes.cardactions}>
                 <IconButton color="secondary" onClick={favoriteToggleHandler}>
-                    {state.favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                    {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                 </IconButton>
                 <IconButton color="primary" onClick={appliedToggleHandler}>
-                    {state.applied ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                    {applied ? <BookmarkIcon /> : <BookmarkBorderIcon />}
                 </IconButton>
             </CardActions>}
         </Card>
@@ -111,7 +152,8 @@ const JobCard = props => {
 
 const mapStateToProps = state => {
     return {
-        isAuthenticated: state.auth.token !== null
+        isAuthenticated: state.auth.token !== null,
+        userId: state.auth.userId
     };
 };
 

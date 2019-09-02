@@ -15,7 +15,7 @@ import BookmarkIcon from '@material-ui/icons/Bookmark';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import MoreIcon from '@material-ui/icons/MoreVert';
-
+import AutoComplete from '../AutoComplete/AutoComplete';
 import NavLinkItem from '../NavLinkItem/NavLinkItem';
 
 const useStyles = makeStyles(theme => ({
@@ -77,6 +77,12 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.up('md')]: {
             display: 'none',
         },
+    },
+    iconBtn: {
+        color: '#fff'
+    },
+    navLink: {
+        color: '#000'
     }
 }));
 
@@ -105,46 +111,48 @@ const Navbar = (props) => {
             open={isMobileMenuOpen}
             onClose={handleMobileMenuClose}
         >
-            <MenuItem>
-                <NavLinkItem link="/" exact>
+            
+            <NavLinkItem link="/" exact>
+                <MenuItem className={classes.navLink}>
                     <IconButton>
                         <LocationOnIcon />
                     </IconButton>
-                </NavLinkItem>
-                <p>Nearby</p>
-            </MenuItem>
-            <MenuItem>
-                <NavLinkItem link="/favorite">
+                    <p>Nearby</p>
+                </MenuItem>
+            </NavLinkItem>
+                
+            <NavLinkItem link="/favorite">
+                <MenuItem className={classes.navLink}>
                     <IconButton>
                         <FavoriteIcon />
                     </IconButton>
-                </NavLinkItem>
-                <p>Favorite</p>
-            </MenuItem>
-            <MenuItem>
-                <NavLinkItem link="/history">
+                    <p>Favorite</p>
+                </MenuItem>
+            </NavLinkItem>
+            <NavLinkItem link="/history">
+                <MenuItem className={classes.navLink}>
                     <IconButton>
                         <BookmarkIcon />
                     </IconButton>
-                </NavLinkItem>
-                <p>History</p>
-            </MenuItem>
-            <MenuItem>
-                <NavLinkItem link="/recommend">
+                    <p>History</p>
+                </MenuItem>
+            </NavLinkItem>
+            <NavLinkItem link="/recommend">
+                <MenuItem className={classes.navLink}>
                     <IconButton>
                         <ThumbUpIcon />
                     </IconButton>
-                </NavLinkItem>
-                <p>Recommendation</p>
-            </MenuItem>
-            <MenuItem>
-                <NavLinkItem link="/logout">
+                    <p>Recommend</p>
+                </MenuItem>
+            </NavLinkItem>
+            <NavLinkItem link="/logout">
+                <MenuItem className={classes.navLink}>
                     <IconButton>
                         <AccountCircle />
                     </IconButton>
-                </NavLinkItem>
-                <p>Logout</p>
-            </MenuItem>
+                    <p>Logout</p>
+                </MenuItem>
+            </NavLinkItem>
         </Menu>
     );
 
@@ -166,30 +174,31 @@ const Navbar = (props) => {
                     inputProps={{ 'aria-label': 'search' }}
                 />
             </div>
+            <AutoComplete />
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
                 <NavLinkItem link="/" exact>
-                    <IconButton color="inherit">
+                    <IconButton className={classes.iconBtn}>
                         <LocationOnIcon />
                     </IconButton>
                 </NavLinkItem>
                 <NavLinkItem link="/favorite">
-                    <IconButton color="inherit">
+                    <IconButton className={classes.iconBtn}>
                         <FavoriteIcon />
                     </IconButton>
                 </NavLinkItem>
                 <NavLinkItem link="/history">
-                    <IconButton color="inherit">
+                    <IconButton className={classes.iconBtn}>
                         <BookmarkIcon />
                     </IconButton>
                 </NavLinkItem>
                 <NavLinkItem link="/recommend">
-                    <IconButton color="inherit">
+                    <IconButton className={classes.iconBtn}>
                         <ThumbUpIcon />
                     </IconButton>
                 </NavLinkItem>
                 <NavLinkItem link="/logout">
-                    <IconButton color="inherit">
+                    <IconButton className={classes.iconBtn}>
                         <AccountCircle />
                     </IconButton>
                 </NavLinkItem>
@@ -214,22 +223,11 @@ const Navbar = (props) => {
                 <Typography className={classes.title} variant="h6" noWrap>
                     Linkedin
                 </Typography>
-                <div className={classes.search}>
-                    <div className={classes.searchIcon}>
-                        <SearchIcon />
-                    </div>
-                    <InputBase
-                        placeholder="Search…"
-                        classes={{
-                            root: classes.inputRoot,
-                            input: classes.inputInput,
-                        }}
-                        inputProps={{ 'aria-label': 'search' }}
-                    />
-                </div>
                 <div className={classes.grow} />
                 <NavLinkItem link="/auth">
-                    <PersonAddIcon color="inherit"/>
+                    <IconButton className={classes.iconBtn}>
+                        <PersonAddIcon />
+                    </IconButton>
                 </NavLinkItem> 
             </Toolbar>
         );

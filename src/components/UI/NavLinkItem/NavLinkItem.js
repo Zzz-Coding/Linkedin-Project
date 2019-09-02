@@ -3,16 +3,19 @@ import { NavLink } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles({
-    navLink: {
-        color: '#fff'
+    activeLink: {
+        borderBottom: '4px solid #fff'
     }
 });
 
 const NavLinkItem = props => {
     const classes = useStyles();
     return (
-        <NavLink className={classes.navLink} to={props.link} exact={props.exact}>
-            {props.children}
+        <NavLink 
+            to={props.link} 
+            exact={props.exact} 
+            activeClassName={classes.activeLink}>
+                {props.children}
         </NavLink> 
     )
 }

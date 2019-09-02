@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import JobCard from '../../components/JobCard/JobCard';
 import axios from '../../axios-orders';
+import { database } from '../../firebase/firebase';
 
 const styles = theme => ({
     root: {
@@ -16,6 +18,9 @@ const styles = theme => ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    spinner: {
+        margin: 'auto'
     }
 });
 
@@ -31,14 +36,18 @@ class JobGrid extends Component {
     }
 
     getJobFromLatAndLong = (loc) => {
-        axios.get(`positions.json?lat=${loc.lat}&long=${loc.long}`)
+        //axios.get(`positions.json?lat=${loc.lat}&long=${loc.long}`)
+        axios.get('positions.json?lat=37.3229978&long=-122.0321823')
             .then(res => {
                 // we may get [] when using lat and long
                 if (res.data.length > 0) {
                     this.setState({
                         jobs: res.data,
                         loading: false
-                    })
+                    });
+                    if (this.props.isAuthenticated) {
+                        this.saveJobsIntoDB(res.data);
+                    }
                 } else {
                     console.log('no job found using lat and long, so using region');
                     this.getLocationFromIP();
@@ -60,6 +69,9 @@ class JobGrid extends Component {
                         jobs: res.data,
                         loading: false
                     });
+                    if (this.props.isAuthenticated) {
+                        this.saveJobsIntoDB(res.data);
+                    }
                 } else {
                     console.log('no job found in this area');
                 }
@@ -115,6 +127,23 @@ class JobGrid extends Component {
             });
     }
 
+    // insert job data into db when authenticated
+    saveJobsIntoDB = (jobs) => {
+        console.log('save');
+        jobs.forEach(job => {
+            database.ref('jobs/' + job.id).set({
+                type: job.type,
+                url: job.url,
+                created_at: job.created_at,
+                company: job.company,
+                location: job.location,
+                title: job.title,
+                description: job.description,
+                company_logo: job.company_logo
+            });
+        });
+    }
+
     render() {
         const { classes } = this.props;
         let jobCards = null;
@@ -124,6 +153,7 @@ class JobGrid extends Component {
                     <Grid key={job.id} item xs={12} md={6} lg={4}>
                         <div className={classes.paper}>
                             <JobCard
+                                id={job.id}
                                 type={job.type}
                                 url={job.url}
                                 createdAt={job.created_at}
@@ -140,7 +170,7 @@ class JobGrid extends Component {
         }
         
         if (this.state.loading) {
-            jobCards = <CircularProgress />
+            jobCards = <CircularProgress className={classes.spinner}/>
         }
         return (
             <div className={classes.root}>
@@ -156,4 +186,10 @@ JobGrid.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(JobGrid);
+const mapStateToProps = state => {
+    return {
+        isAuthenticated: state.auth.token !== null
+    };
+};
+
+export default connect(mapStateToProps)(withStyles(styles)(JobGrid));
