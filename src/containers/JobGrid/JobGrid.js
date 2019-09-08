@@ -32,7 +32,14 @@ class JobGrid extends Component {
     };
 
     componentDidMount() {
-       this.getGeoLocation();  
+        const { location } = this.props.match.params;
+        console.log(location);
+        if (typeof location === 'undefined') {
+            this.getGeoLocation();  
+        } else {
+            this.getJobFromRegion(location);
+        }
+       
     }
 
     getJobFromLatAndLong = (loc) => {
@@ -62,6 +69,7 @@ class JobGrid extends Component {
     }
 
     getJobFromRegion = (region) => {
+        region = region.replace(/ /g, '+');
         axios.get(`positions.json?location=${region}`)
             .then(res => {
                 if (res.data.length > 0) {
@@ -109,8 +117,7 @@ class JobGrid extends Component {
             .then(res => {
                 console.log(res.data);
                 if ('region' in res.data) {
-                    const region = res.data.region.replace(/ /g, '+');
-                    this.getJobFromRegion(region);
+                    this.getJobFromRegion(res.data.region);
                 } else {
                     this.setState({
                         error: true, 
