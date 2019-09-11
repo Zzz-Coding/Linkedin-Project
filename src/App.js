@@ -27,7 +27,7 @@ class App extends Component {
                   <Route path="/logout" component={Logout} />
                   <Route path="/favorite" render={(props) => <JobGridFromDB {...props} key="favorite" type="favorite" />} />
                   <Route path="/history" render={(props) => <JobGridFromDB {...props} key="history" type="history" />} />
-                  <Route path="/search/:location" render={(props) => <JobGrid {...props} key="search" />} />
+                  <Route path="/search" render={(props) => <JobGrid {...props} key={`${props.location.search}`} />} />
                   <Route path="/" exact component={JobGrid} />
                   <Redirect to="/" />
                 </Switch>;

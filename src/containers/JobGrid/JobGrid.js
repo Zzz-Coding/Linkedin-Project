@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import JobCard from '../../components/JobCard/JobCard';
-import axios from '../../axios-orders';
-import { database } from '../../firebase/firebase';
+import queryString from 'query-string';
+import * as utils from '../../util/utility';
 
 const styles = theme => ({
     root: {
@@ -32,122 +33,87 @@ class JobGrid extends Component {
     };
 
     componentDidMount() {
-        const { location } = this.props.match.params;
-        console.log(location);
-        if (typeof location === 'undefined') {
-            this.getGeoLocation();  
+        const query = queryString.parse(this.props.location.search);
+        if (Object.entries(query).length === 0) {
+            this.getNearbyJob();
         } else {
-            this.getJobFromRegion(location);
+            this.getSearchJob(query);
         }
-       
+        
     }
 
-    getJobFromLatAndLong = (loc) => {
-        //axios.get(`positions.json?lat=${loc.lat}&long=${loc.long}`)
-        axios.get('positions.json?lat=37.3229978&long=-122.0321823')
-            .then(res => {
-                // we may get [] when using lat and long
-                if (res.data.length > 0) {
-                    this.setState({
-                        jobs: res.data,
-                        loading: false
-                    });
-                    if (this.props.isAuthenticated) {
-                        this.saveJobsIntoDB(res.data);
+    getNearbyJob = () => {
+        // first get geocode using navigator
+        utils.getGeoLocation(
+        // success cb
+        (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            utils.getJobFromLatLng(lat, lng, this.errorCb)
+                .then(res => {
+                    if (res.length > 0) {
+                        this.getJobSuccessCb(res);
+                    } else {
+                        // if there is no job using lat lng, we get the location
+                        utils.getLocationFromGeoCode(lat, lng, this.errorCb)
+                            .then(loc => {
+                                utils.getJobFromLocation(loc.State, this.errorCb)
+                                    .then(jobs => {
+                                        if (jobs.length > 0) {
+                                            this.getJobSuccessCb(jobs);
+                                        } else {
+                                            this.errorCb();
+                                        }
+                                    })
+                            })
                     }
+                })
+        },
+        // fail cb 
+        () => {
+            utils.getLocationFromIP(this.errorCb)
+                .then(res => {
+                    if ('region' in res) {
+                        utils.getJobFromLocation(res.region, this.errorCb)
+                            .then(jobs => {
+                                if (jobs.length > 0) {
+                                    this.getJobSuccessCb(jobs);
+                                } else {
+                                    this.errorCb();
+                                }
+                            })
+                    } else {
+                        this.errorCb();
+                    }
+                })
+        })
+    }
+
+    getSearchJob = (query) => {
+        utils.getJobFromSearch(query.location, query.description, this.errorCb)
+            .then(res => {
+                if (res.length > 0) {
+                    this.getJobSuccessCb(res);
                 } else {
-                    console.log('no job found using lat and long, so using region');
-                    this.getLocationFromIP();
+                    this.errorCb();
                 }
             })
-            .catch(err => {
-                this.setState({
-                    loading: false,
-                    error: true
-                })
-            });
     }
 
-    getJobFromRegion = (region) => {
-        region = region.replace(/ /g, '+');
-        axios.get(`positions.json?location=${region}`)
-            .then(res => {
-                if (res.data.length > 0) {
-                    this.setState({
-                        jobs: res.data,
-                        loading: false
-                    });
-                    if (this.props.isAuthenticated) {
-                        this.saveJobsIntoDB(res.data);
-                    }
-                } else {
-                    console.log('no job found in this area');
-                }
-                
-            })
-            .catch(err => {
-                this.setState({
-                    loading: false,
-                    error: true
-                })
-            });
-    }
-
-    getGeoLocation = () => {
-        if (window.navigator.geolocation) {
-            window.navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    this.getJobFromLatAndLong({
-                        lat: pos.coords.latitude,
-                        long: pos.coords.longitude
-                    })
-                },
-                () => {
-                    this.getLocationFromIP();
-                }
-            )
-        } else {
-            this.getLocationFromIP();
+    getJobSuccessCb = (res) => {
+        this.setState({
+            jobs: res,
+            loading: false
+        });
+        if (this.props.isAuthenticated) {
+            utils.saveJobsIntoDB(res);
         }
-    };
-    
-    // if we get location from ip, we just use the region to get jobs
-    getLocationFromIP = () => {
-        axios.get('https://ipapi.co/json')
-            .then(res => {
-                console.log(res.data);
-                if ('region' in res.data) {
-                    this.getJobFromRegion(res.data.region);
-                } else {
-                    this.setState({
-                        error: true, 
-                        loading: false
-                    });
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                this.setState({
-                    error: true, 
-                    loading: false
-                });
-            });
     }
 
-    // insert job data into db when authenticated
-    saveJobsIntoDB = (jobs) => {
-        console.log('save');
-        jobs.forEach(job => {
-            database.ref('jobs/' + job.id).set({
-                type: job.type,
-                url: job.url,
-                created_at: job.created_at,
-                company: job.company,
-                location: job.location,
-                title: job.title,
-                description: job.description,
-                company_logo: job.company_logo
-            });
+    errorCb = () => {
+        this.setState({
+            loading: false,
+            error: true
         });
     }
 
@@ -162,7 +128,7 @@ class JobGrid extends Component {
                             <JobCard
                                 id={job.id}
                                 type={job.type}
-                                url={job.url}
+                                url={job.how_to_apply.match(/href="(.*?)"/)[1]}
                                 createdAt={job.created_at}
                                 company={job.company}
                                 location={job.location}
@@ -178,6 +144,8 @@ class JobGrid extends Component {
         
         if (this.state.loading) {
             jobCards = <CircularProgress className={classes.spinner}/>
+        } else if (this.state.error) {
+            jobCards = <Typography>No Job Found, Please Try Again...</Typography>
         }
         return (
             <div className={classes.root}>
