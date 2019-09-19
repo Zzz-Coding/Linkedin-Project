@@ -28,22 +28,22 @@ const useStyles = makeStyles(theme => ({
 
 const CustomSnackbar = (props) => {
     const classes = useStyles();
-    const { message } = props;
-
+    const { message, error } = props;
     const [open, setOpen] = React.useState(true);
+    console.log(error);
 
     function handleClose(event, reason) {
         if (reason === 'clickaway') {
             return;
         }
-
+        console.log('close close');
         setOpen(false);
     }
 
     return (
         <Snackbar 
             anchorOrigin={{
-                vertical: 'center',
+                vertical: 'top',
                 horizontal: 'center'
             }}
             autoHideDuration={2000}

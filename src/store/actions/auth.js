@@ -1,6 +1,6 @@
 import axios from 'axios';
-
 import * as actionTypes from './actionTypes';
+import { saveSingleUserInfoIntoDB } from '../../firebase/firebase';
 
 export const authStart = () => {
     return {
@@ -8,11 +8,12 @@ export const authStart = () => {
     };
 };
 
-export const authSuccess = (token, userId) => {
+export const authSuccess = (token, userId, newUser) => {
     return {
         type: actionTypes.AUTH_SUCCESS,
         idToken: token,
-        userId: userId
+        userId: userId,
+        newUser: newUser
     };
 };
 
@@ -60,9 +61,11 @@ export const auth = (email, password, isSignup) => {
                 localStorage.setItem('token', res.data.idToken);
                 localStorage.setItem('expirationDate', expirationDate);
                 localStorage.setItem('userId', res.data.localId);
-                dispatch(authSuccess(res.data.idToken, res.data.localId));
+                dispatch(authSuccess(res.data.idToken, res.data.localId, Boolean(isSignup)));
                 dispatch(checkAuthTimeout(res.data.expiresIn));
-                
+                //if (isSignup) {
+                    saveSingleUserInfoIntoDB(res.data.localId, 'email', email);
+                //}
             })
             .catch(err => {
                 console.log(err);

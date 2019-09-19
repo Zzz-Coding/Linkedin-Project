@@ -68,6 +68,11 @@ const styles = theme => ({
 })
 
 class SearchArea extends React.Component {
+    constructor(props) {
+        super(props);
+        this._isMounted = false;
+    }
+
     state = {
         address: '',
         keyword: ''
@@ -97,16 +102,23 @@ class SearchArea extends React.Component {
     }
 
     componentDidMount() {
+        this._isMounted = true;
         getGeoLocation((pos) => {
             getLocationFromGeoCode(pos.coords.latitude, pos.coords.longitude)
                 .then(res => {
                     const address = `${res.City}, ${res.State}, ${res.Country}`;
-                    this.setState({ address });
+                    if (this._isMounted) {
+                        this.setState({ address });
+                    }
                 })
         }, 
         err => {
             console.log(err);
         })
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     render() {

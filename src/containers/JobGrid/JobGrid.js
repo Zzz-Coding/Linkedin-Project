@@ -8,6 +8,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import JobCard from '../../components/JobCard/JobCard';
 import queryString from 'query-string';
 import * as utils from '../../util/utility';
+import { saveJobsIntoDB } from '../../firebase/firebase';
+import PreferenceForm from '../../components/UI/PreferenceForm/PreferenceForm';
 
 const styles = theme => ({
     root: {
@@ -26,6 +28,11 @@ const styles = theme => ({
 });
 
 class JobGrid extends Component {
+    constructor(props) {
+        super(props);
+        // used to cancel async calls
+        this._isMounted = false;
+    }
     state = {
         jobs: null,
         loading: true,
@@ -33,6 +40,8 @@ class JobGrid extends Component {
     };
 
     componentDidMount() {
+        this._isMounted = true;
+        console.log(this.props.newUser);
         const query = queryString.parse(this.props.location.search);
         if (Object.entries(query).length === 0) {
             this.getNearbyJob();
@@ -40,6 +49,10 @@ class JobGrid extends Component {
             this.getSearchJob(query);
         }
         
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     getNearbyJob = () => {
@@ -101,20 +114,24 @@ class JobGrid extends Component {
     }
 
     getJobSuccessCb = (res) => {
-        this.setState({
-            jobs: res,
-            loading: false
-        });
-        if (this.props.isAuthenticated) {
-            utils.saveJobsIntoDB(res);
+        if (this._isMounted) {
+            this.setState({
+                jobs: res,
+                loading: false
+            });
+            if (this.props.isAuthenticated) {
+                saveJobsIntoDB(res);
+            }
         }
     }
 
     errorCb = () => {
-        this.setState({
-            loading: false,
-            error: true
-        });
+        if (this._isMounted) {
+            this.setState({
+                loading: false,
+                error: true
+            });
+        }
     }
 
     render() {
@@ -152,6 +169,7 @@ class JobGrid extends Component {
                 <Grid container spacing={3}>
                     {jobCards}
                 </Grid>
+                {(this.props.isAuthenticated && this.props.newUser) ? <PreferenceForm /> : null}
             </div>
         );
     }
@@ -163,7 +181,8 @@ JobGrid.propTypes = {
 
 const mapStateToProps = state => {
     return {
-        isAuthenticated: state.auth.token !== null
+        isAuthenticated: state.auth.token !== null,
+        newUser: state.auth.newUser
     };
 };
 

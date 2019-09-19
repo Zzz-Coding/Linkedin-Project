@@ -4,7 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Input from '../Input/Input';
-
 import * as actions from '../../../store/actions/index';
 
 const useStyles = makeStyles(theme => ({

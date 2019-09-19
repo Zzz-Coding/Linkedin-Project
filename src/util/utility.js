@@ -1,6 +1,5 @@
 import axios from 'axios';
 import axiosInstance from '../axios-orders';
-import { database } from '../firebase/firebase';
 
 export const updateObject = (oldObject, updatedProperties) => {
     return {
@@ -68,18 +67,4 @@ export const getJobFromSearch = async (loc, desc, errorCb) => {
     }
 }
 
-export const saveJobsIntoDB = (jobs) => {
-    console.log('save');
-    jobs.forEach(job => {
-        database.ref('jobs/' + job.id).set({
-            type: job.type,
-            url: job.how_to_apply.match(/href="(.*?)"/)[1],
-            created_at: job.created_at,
-            company: job.company,
-            location: job.location,
-            title: job.title,
-            description: job.description,
-            company_logo: job.company_logo
-        });
-    });
-}
+
