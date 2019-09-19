@@ -22,7 +22,7 @@ export const saveJobsIntoDB = (jobs) => {
     jobs.forEach(job => {
         database.ref(`jobs/${job.id}`).set({
             type: job.type,
-            url: job.how_to_apply.match(/href="(.*?)"/)[1],
+            url: job.how_to_apply.match(/href="(.*?)"/) ? job.how_to_apply.match(/href="(.*?)"/)[1] : job.url,
             created_at: job.created_at,
             company: job.company,
             location: job.location,

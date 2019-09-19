@@ -145,7 +145,7 @@ class JobGrid extends Component {
                             <JobCard
                                 id={job.id}
                                 type={job.type}
-                                url={job.how_to_apply.match(/href="(.*?)"/)[1]}
+                                url={job.how_to_apply.match(/href="(.*?)"/) ? job.how_to_apply.match(/href="(.*?)"/)[1] : job.url}
                                 createdAt={job.created_at}
                                 company={job.company}
                                 location={job.location}
