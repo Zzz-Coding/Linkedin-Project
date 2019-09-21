@@ -94,7 +94,13 @@ class SearchArea extends React.Component {
     }
 
     handleSearchClick = () => {
-        const location = this.state.address.split(', ')[1];
+        const locArr = this.state.address.split(', ');
+        let location = '';
+        if (locArr.length > 2) {
+            location = locArr[1];
+        } else {
+            location = locArr[0];
+        }
         console.log(location);
         console.log(this.state.keyword);
         this.props.history.push(`/search?location=${location}&description=${this.state.keyword}`)

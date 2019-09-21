@@ -12,7 +12,7 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import BookmarkIcon from '@material-ui/icons/Bookmark';
 import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
-import { database } from '../../firebase/firebase';
+import { getUserSingleJobFromDB, saveUserJobsIntoDB, deleteUserJobsFromDB } from '../../firebase/firebase';
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -61,14 +61,14 @@ const JobCard = props => {
     }
 
     const setInitialState = () => {
-        database.ref('users/' + props.userId + '/favorite/' + props.id).once('value')
+        getUserSingleJobFromDB(props.userId, 'favorite', props.id)
             .then(snapshot => {
                 if (snapshot.val()) {
                     setFavorite(true);
                 }
             });
-
-        database.ref('users/' + props.userId + '/history/' + props.id).once('value')
+            
+        getUserSingleJobFromDB(props.userId, 'history', props.id)
             .then(snapshot => {
                 if (snapshot.val()) {
                     setApplied(true);
@@ -81,15 +81,35 @@ const JobCard = props => {
             console.log('componetDidUpdate');
             const timer = setTimeout(() => {
                 if (favorite) {
-                    database.ref('users/' + props.userId + '/favorite/' + props.id).set(1);
+                    saveUserJobsIntoDB(props.userId, 'favorite', {
+                        id: props.id,
+                        type: props.type,
+                        url: props.url,
+                        created_at: props.createdAt,
+                        company: props.company,
+                        location: props.location,
+                        title: props.title,
+                        description: props.description,
+                        company_logo: props.companyLogo
+                    });
                 } else {
-                    database.ref('users/' + props.userId + '/favorite/' + props.id).remove();
+                    deleteUserJobsFromDB(props.userId, 'favorite', props.id);
                 }
 
                 if (applied) {
-                    database.ref('users/' + props.userId + '/history/' + props.id).set(1);
+                    saveUserJobsIntoDB(props.userId, 'history', {
+                        id: props.id,
+                        type: props.type,
+                        url: props.url,
+                        created_at: props.createdAt,
+                        company: props.company,
+                        location: props.location,
+                        title: props.title,
+                        description: props.description,
+                        company_logo: props.companyLogo
+                    });
                 } else {
-                    database.ref('users/' + props.userId + '/history/' + props.id).remove();
+                    deleteUserJobsFromDB(props.userId, 'history', props.id);
                 }
             }, 500);
             // debounce
@@ -129,7 +149,7 @@ const JobCard = props => {
                                 {props.location}
                             </Typography>
                             <Typography variant="body2" color="textSecondary" component="p">
-                                {props.description.replace(/<[^>]+>/g, "").substring(0, 200) + '...'}
+                                {props.description.substring(0, 200) + '...'}
                             </Typography>
                             <Typography variant="body1" color="textSecondary" component="p" className={classes.tune}>
                                 {props.createdAt}

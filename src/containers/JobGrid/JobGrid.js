@@ -8,7 +8,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import JobCard from '../../components/JobCard/JobCard';
 import queryString from 'query-string';
 import * as utils from '../../util/utility';
-import { saveJobsIntoDB } from '../../firebase/firebase';
 import PreferenceForm from '../../components/UI/PreferenceForm/PreferenceForm';
 
 const styles = theme => ({
@@ -119,9 +118,9 @@ class JobGrid extends Component {
                 jobs: res,
                 loading: false
             });
-            if (this.props.isAuthenticated) {
-                saveJobsIntoDB(res);
-            }
+            // if (this.props.isAuthenticated) {
+            //     saveJobsIntoDB(res);
+            // }
         }
     }
 
@@ -150,7 +149,7 @@ class JobGrid extends Component {
                                 company={job.company}
                                 location={job.location}
                                 title={job.title}
-                                description={job.description}
+                                description={job.description.replace(/<[^>]+>/g, "")}
                                 companyLogo={job.company_logo}
                             />
                         </div>

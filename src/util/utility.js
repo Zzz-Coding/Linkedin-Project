@@ -67,4 +67,14 @@ export const getJobFromSearch = async (loc, desc, errorCb) => {
     }
 }
 
+export const getRecommendJobs = async (userId, errorCb) => {
+    try {
+        const res = await axios.get(`http://localhost:8080/Linkedin_war_exploded/recommend?userId=${userId}`);
+        return res.data;
+    } catch (err) {
+        console.log(err);
+        errorCb();
+    }
+}
+
 

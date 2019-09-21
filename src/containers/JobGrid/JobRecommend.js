@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import JobCard from '../../components/JobCard/JobCard';
-import { getUserJobsFromDB } from '../../firebase/firebase';
+import { getRecommendJobs } from '../../util/utility';
 
 const styles = theme => ({
     root: {
@@ -23,7 +24,7 @@ const styles = theme => ({
     }
 });
 
-class JobGridFromDB extends Component {
+class JobRecommend extends Component {
     constructor(props) {
         super(props);
         // used to cancel async calls
@@ -32,21 +33,19 @@ class JobGridFromDB extends Component {
 
     state = {
         loading: true,
-        jobs: null
+        jobs: null,
+        error: false
     }
 
     componentDidMount() {
         this._isMounted = true;
-        getUserJobsFromDB(this.props.userId, this.props.type)
-            .then(snapshot => {
-                let updatedJobs = [];
-                for (let [id, job] of Object.entries(snapshot.val())) {
-                    updatedJobs.push({...job, id});
-                }
+        getRecommendJobs(this.props.userId, this.errorCb)
+            .then(res => {
+                console.log(res);
                 if (this._isMounted) {
                     this.setState({
                         loading: false,
-                        jobs: updatedJobs
+                        jobs: res
                     });
                 }
             });
@@ -54,6 +53,15 @@ class JobGridFromDB extends Component {
 
     componentWillUnmount() {
         this._isMounted = false;
+    }
+
+    errorCb = () => {
+        if (this._isMounted) {
+            this.setState({
+                loading: false,
+                error: true
+            });
+        }
     }
 
     render() {
@@ -67,12 +75,12 @@ class JobGridFromDB extends Component {
                             <JobCard
                                 id={job.id}
                                 type={job.type}
-                                url={job.url}
+                                url={job.how_to_apply.match(/href="(.*?)"/) ? job.how_to_apply.match(/href="(.*?)"/)[1] : job.url}
                                 createdAt={job.created_at}
                                 company={job.company}
                                 location={job.location}
                                 title={job.title}
-                                description={job.description}
+                                description={job.description.replace(/<[^>]+>/g, "")}
                                 companyLogo={job.company_logo}
                             />
                         </div>
@@ -84,6 +92,8 @@ class JobGridFromDB extends Component {
         
         if (this.state.loading) {
             jobCards = <CircularProgress className={classes.spinner}/>
+        } else if (this.state.error) {
+            jobCards = <Typography>No Recommendation Found, Please Try Again...</Typography>
         }
         return (
             <div className={classes.root}>
@@ -95,7 +105,7 @@ class JobGridFromDB extends Component {
     }
 }
 
-JobGridFromDB.propTypes = {
+JobRecommend.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
@@ -105,4 +115,4 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps)(withStyles(styles)(JobGridFromDB));
+export default connect(mapStateToProps)(withStyles(styles)(JobRecommend));

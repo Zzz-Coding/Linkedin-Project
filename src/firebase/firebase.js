@@ -17,20 +17,44 @@ firebase.initializeApp(firebaseConfig);
 export const database = firebase.database();
 export const storage = firebase.storage();
 
-export const saveJobsIntoDB = (jobs) => {
-    console.log('save');
-    jobs.forEach(job => {
-        database.ref(`jobs/${job.id}`).set({
-            type: job.type,
-            url: job.how_to_apply.match(/href="(.*?)"/) ? job.how_to_apply.match(/href="(.*?)"/)[1] : job.url,
-            created_at: job.created_at,
-            company: job.company,
-            location: job.location,
-            title: job.title,
-            description: job.description,
-            company_logo: job.company_logo
-        });
+// export const saveJobsIntoDB = (jobs) => {
+//     jobs.forEach(job => {
+//         database.ref(`jobs/${job.id}`).set({
+//             type: job.type,
+//             url: job.how_to_apply.match(/href="(.*?)"/) ? job.how_to_apply.match(/href="(.*?)"/)[1] : job.url,
+//             created_at: job.created_at,
+//             company: job.company,
+//             location: job.location,
+//             title: job.title,
+//             description: job.description,
+//             company_logo: job.company_logo
+//         });
+//     });
+// };
+
+export const getUserSingleJobFromDB = async (userId, type, jobId) => {
+    return await database.ref(`users/${userId}/${type}/${jobId}`).once('value');
+};
+
+export const getUserJobsFromDB = async (userId, type) => {
+    return await database.ref(`users/${userId}/${type}`).once('value');
+}
+
+export const saveUserJobsIntoDB = (userId, type, job) => {
+    database.ref(`users/${userId}/${type}/${job.id}`).set({
+        type: job.type,
+        url: job.url,
+        created_at: job.created_at,
+        company: job.company,
+        location: job.location,
+        title: job.title,
+        description: job.description,
+        company_logo: job.company_logo ? job.company_logo : ""
     });
+};
+
+export const deleteUserJobsFromDB = (userId, type, jobId) => {
+    database.ref(`users/${userId}/${type}/${jobId}`).remove();
 };
 
 export const saveSingleUserInfoIntoDB = (userId, key, value) => {

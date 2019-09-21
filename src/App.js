@@ -8,6 +8,7 @@ import Logout from './containers/Auth/Logout/Logout';
 import * as actions from './store/actions/index';
 import JobGridFromDB from './containers/JobGrid/JobGridFromDB';
 import Profile from './containers/Profile/Profile';
+import JobRecommend from './containers/JobGrid/JobRecommend';
 
 class App extends Component {
 
@@ -29,6 +30,7 @@ class App extends Component {
                   <Route path="/favorite" render={(props) => <JobGridFromDB {...props} key="favorite" type="favorite" />} />
                   <Route path="/history" render={(props) => <JobGridFromDB {...props} key="history" type="history" />} />
                   <Route path="/search" render={(props) => <JobGrid {...props} key={`${props.location.search}`} />} />
+                  <Route path="/recommend" render={(props) => <JobRecommend {...props} />} />
                   <Route path="/profile" render={(props) => <Profile {...props} />} />
                   <Route path="/" exact component={JobGrid} />
                   <Redirect to="/" />
