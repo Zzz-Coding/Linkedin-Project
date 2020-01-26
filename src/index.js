@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
 import authReducer from './store/reducers/auth';
 import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
@@ -28,5 +27,3 @@ const app = (
 )
 
 ReactDOM.render(app, document.getElementById('root'));
-
-serviceWorker.unregister();

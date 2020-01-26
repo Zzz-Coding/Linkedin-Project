@@ -30,8 +30,8 @@ class App extends Component {
                   <Route path="/favorite" render={(props) => <JobGridFromDB {...props} key="favorite" type="favorite" />} />
                   <Route path="/history" render={(props) => <JobGridFromDB {...props} key="history" type="history" />} />
                   <Route path="/search" render={(props) => <JobGrid {...props} key={`${props.location.search}`} />} />
-                  <Route path="/recommend" render={(props) => <JobRecommend {...props} />} />
-                  <Route path="/profile" render={(props) => <Profile {...props} />} />
+                  <Route path="/recommend" render={(props) => <JobRecommend {...props} key="recommend" />} />
+                  <Route path="/profile" render={(props) => <Profile {...props} key={`${props.userId}`} />} />
                   <Route path="/" exact component={JobGrid} />
                   <Redirect to="/" />
                 </Switch>;

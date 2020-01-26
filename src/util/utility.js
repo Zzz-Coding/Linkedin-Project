@@ -39,7 +39,7 @@ export const getLocationFromIP = async (errorCb) => {
 
 export const getJobFromLatLng = async (lat, lng, errorCb) => {
     try {
-        const res = await axiosInstance.get(`positions.json?lat=${lat}&long=${lng}`);
+        const res = await axiosInstance.get(`nearby?lat=${lat}&long=${lng}`);
         return res.data;
     } catch (err) {
         console.error(err);
@@ -49,7 +49,7 @@ export const getJobFromLatLng = async (lat, lng, errorCb) => {
 
 export const getJobFromLocation = async (loc, errorCb) => {
     try {
-        const res = await axiosInstance.get(`positions.json?location=${loc}`);
+        const res = await axiosInstance.get(`nearby?location=${loc}`);
         return res.data;
     } catch (err) {
         console.error(err);
@@ -59,7 +59,7 @@ export const getJobFromLocation = async (loc, errorCb) => {
 
 export const getJobFromSearch = async (loc, desc, errorCb) => {
     try {
-        const res = await axiosInstance.get(`positions.json?location=${loc}&description=${desc}`);
+        const res = await axiosInstance.get(`nearby?location=${loc}&description=${desc}`);
         return res.data;
     } catch (err) {
         console.error(err);
@@ -69,7 +69,7 @@ export const getJobFromSearch = async (loc, desc, errorCb) => {
 
 export const getRecommendJobs = async (userId, errorCb) => {
     try {
-        const res = await axios.get(`http://localhost:8080/Linkedin_war_exploded/recommend?userId=${userId}`);
+        const res = await axiosInstance.get(`recommend?userId=${userId}`);
         return res.data;
     } catch (err) {
         console.log(err);

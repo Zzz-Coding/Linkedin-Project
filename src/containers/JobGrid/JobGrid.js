@@ -63,7 +63,7 @@ class JobGrid extends Component {
             const lng = pos.coords.longitude;
             utils.getJobFromLatLng(lat, lng, this.errorCb)
                 .then(res => {
-                    if (res.length > 0) {
+                    if (res && res.length > 0) {
                         this.getJobSuccessCb(res);
                     } else {
                         // if there is no job using lat lng, we get the location
@@ -71,7 +71,7 @@ class JobGrid extends Component {
                             .then(loc => {
                                 utils.getJobFromLocation(loc.State, this.errorCb)
                                     .then(jobs => {
-                                        if (jobs.length > 0) {
+                                        if (jobs && jobs.length > 0) {
                                             this.getJobSuccessCb(jobs);
                                         } else {
                                             this.errorCb();
@@ -85,10 +85,10 @@ class JobGrid extends Component {
         () => {
             utils.getLocationFromIP(this.errorCb)
                 .then(res => {
-                    if ('region' in res) {
+                    if (res && 'region' in res) {
                         utils.getJobFromLocation(res.region, this.errorCb)
                             .then(jobs => {
-                                if (jobs.length > 0) {
+                                if (jobs && jobs.length > 0) {
                                     this.getJobSuccessCb(jobs);
                                 } else {
                                     this.errorCb();
@@ -104,7 +104,7 @@ class JobGrid extends Component {
     getSearchJob = (query) => {
         utils.getJobFromSearch(query.location, query.description, this.errorCb)
             .then(res => {
-                if (res.length > 0) {
+                if (res && res.length > 0) {
                     this.getJobSuccessCb(res);
                 } else {
                     this.errorCb();

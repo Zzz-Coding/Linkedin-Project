@@ -81,6 +81,13 @@ export const setAuthRedirectPath = (path) => {
     };
 };
 
+export const setAuthNewUser = (newUser) => {
+    return {
+        type: actionTypes.SET_AUTH_NEWUSER,
+        newUser: newUser
+    };
+};
+
 export const authCheckState = () => {
     return dispatch => {
         const token = localStorage.getItem('token');

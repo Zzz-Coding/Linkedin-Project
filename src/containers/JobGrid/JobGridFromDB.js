@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import JobCard from '../../components/JobCard/JobCard';
@@ -32,7 +33,8 @@ class JobGridFromDB extends Component {
 
     state = {
         loading: true,
-        jobs: null
+        jobs: null,
+        error: false
     }
 
     componentDidMount() {
@@ -40,15 +42,25 @@ class JobGridFromDB extends Component {
         getUserJobsFromDB(this.props.userId, this.props.type)
             .then(snapshot => {
                 let updatedJobs = [];
-                for (let [id, job] of Object.entries(snapshot.val())) {
-                    updatedJobs.push({...job, id});
+                if (snapshot.val()) {
+                    for (let [id, job] of Object.entries(snapshot.val())) {
+                        updatedJobs.push({...job, id});
+                    }
+                    if (this._isMounted) {
+                        this.setState({
+                            loading: false,
+                            jobs: updatedJobs
+                        });
+                    }
+                } else {
+                    if (this._isMounted) {
+                        this.setState({
+                            loading: false,
+                            error: true
+                        });
+                    }
                 }
-                if (this._isMounted) {
-                    this.setState({
-                        loading: false,
-                        jobs: updatedJobs
-                    });
-                }
+                
             });
     }
 
@@ -84,6 +96,8 @@ class JobGridFromDB extends Component {
         
         if (this.state.loading) {
             jobCards = <CircularProgress className={classes.spinner}/>
+        } else if (this.state.error) {
+            jobCards = <Typography>No {this.props.type} jobs Found, Please go to nearby...</Typography>
         }
         return (
             <div className={classes.root}>

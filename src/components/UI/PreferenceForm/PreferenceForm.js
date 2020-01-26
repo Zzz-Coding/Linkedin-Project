@@ -15,6 +15,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import { saveSingleUserInfoIntoDB } from '../../../firebase/firebase';
 import CustomSnackbar from '../../UI/Snackbar/CustomSnackbar';
+import * as actions from '../../../store/actions/index';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -49,10 +50,9 @@ const PreferenceForm = (props) => {
         } else {
             setOpen(false);
             const loc = address.split(', ')[1];
-            console.log('location', loc);
-            console.log('keyword', jobKeyword);
             saveSingleUserInfoIntoDB(props.userId, 'preferJob', jobKeyword);
             saveSingleUserInfoIntoDB(props.userId, 'preferLoc', loc);
+            props.setAuthNewUser();
         }
         
     }
@@ -137,8 +137,15 @@ const PreferenceForm = (props) => {
 
 const mapStateToProps = state => {
     return {
-        userId: state.auth.userId
+        userId: state.auth.userId,
+        newUser: state.auth.newUser
     }
 }
 
-export default connect(mapStateToProps)(PreferenceForm);
+const mapDispatchToProps = dispatch => {
+    return {
+        setAuthNewUser: () => dispatch(actions.setAuthNewUser(false))
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PreferenceForm);
